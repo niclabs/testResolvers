@@ -2,35 +2,26 @@ package main
 
 import (
     "resolvertests"
-    "readConfig"
+    "config"
     "bufio"
     "encoding/csv"
-    "fmt"
     "io"
     "log"
     "os"
 )
 
 func main() {
-var config Configuration
+var cfg config.Configuration
 
 if len(os.Args) < 2 {
   log.Fatal("[error] use: " + os.Args[0] + " csv_filename");
   os.Exit(-1)
   }
 
-file, err := os.Open("config.json") 
-if err != nil {  
-  log.Fatal("[error] loading config.json")
-  os.Exit(-2)
+err := config.ReadConfig("config.json" , &cfg) 
+if err > 0 {  
+  os.Exit(err)
   }  
-decoder := json.NewDecoder(file) 
-err = decoder.Decode(&config) 
-if err != nil {  
-  log.Fatal("[error] decoding config.json")
-  os.Exit(-3)
-  }
-defer file.Close()
 
 ips := make (chan string, 20000)
 res := make (chan resolvertests.Response, 20000)

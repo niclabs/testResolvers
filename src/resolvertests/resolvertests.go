@@ -28,9 +28,9 @@ const (
     letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
 )
 
-var src = rand.NewSource(time.Now().UnixNano())
 
-func RandString(n int) string {
+func randString(n int) string {
+var src = rand.NewSource(time.Now().UnixNano())
 b := make([]byte, n)
 // A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
 for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
@@ -66,7 +66,7 @@ return 1
 func checkRandomness(ip string) (int,int) {
 var ids []uint16
 for i:= 0; i < 10; i++ {
-  line := "bip"+RandString(16)+".niclabs.cl"
+  line := "bip"+randString(16)+".niclabs.cl"
   c := new(dns.Client)
   m := new(dns.Msg)
   m.SetQuestion(dns.Fqdn(line),dns.TypeA)
@@ -154,7 +154,6 @@ for ip :=  range ips {
         }
       }
     }
-  time.Sleep(1 * time.Second)
   results <- r
   }
 }
