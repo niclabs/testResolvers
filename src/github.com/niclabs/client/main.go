@@ -1,8 +1,8 @@
 package main
 
 import (
-    "resolvertests"
-    "config"
+    "github.com/niclabs/resolvertests"
+    "github.com/niclabs/config"
     "bufio"
     "encoding/csv"
     "io"
