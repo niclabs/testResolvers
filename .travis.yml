@@ -3,9 +3,8 @@ language: go
 before_install:
   - go get github.com/miekg/dns
   - go get golang.org/x/crypto/ssh
-  - go install auth
-  - go install config
-  - go install resolvertests
+  - go install ./src/config
+  - go install ./src/resolvertests
 
 notifications:
   email:
