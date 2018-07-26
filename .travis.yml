@@ -3,8 +3,8 @@ language: go
 before_install:
   - go get github.com/miekg/dns
   - go get golang.org/x/crypto/ssh
-  - go install github.com/niclabs/testResolvers/config
-  - go install github.com/niclabs/testResolvers/resolvertests
+  - go install ./github.com/niclabs/testResolvers/config
+  - go install ./github.com/niclabs/testResolvers/resolvertests
 
 notifications:
   email:
