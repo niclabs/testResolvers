@@ -1,8 +1,8 @@
 package main
 
 import (
-    "./resolvertests"
-    "./config"
+    "resolvertests"
+    "config"
     "bufio"
     "encoding/csv"
     "io"
