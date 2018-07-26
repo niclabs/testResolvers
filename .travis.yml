@@ -1,14 +1,11 @@
 language: go
 
-before_script:
+before_install:
   - go get github.com/miekg/dns
   - go get golang.org/x/crypto/ssh
   - go install auth
   - go install config
   - go install resolvertests
-
-script:
-  - go test -v -race ./...
 
 notifications:
   email:
