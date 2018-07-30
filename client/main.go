@@ -5,6 +5,7 @@ import (
     "github.com/niclabs/testResolvers/config"
     "bufio"
     "encoding/csv"
+    "runtime"
     "io"
     "log"
     "os"
@@ -26,7 +27,7 @@ if err > 0 {
 ips := make (chan string, 20000)
 res := make (chan resolvertests.Response, 20000)
 
-for w:= 1; w <= 1; w++ {
+for w:= 1; w <= runtime.NumCPU() * 2; w++ {
   go resolvertests.CheckDNS(w, ips, res)
   }
 
