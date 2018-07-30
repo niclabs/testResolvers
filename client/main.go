@@ -19,7 +19,8 @@ if len(os.Args) < 2 {
   os.Exit(-1)
   }
 
-err := config.ReadConfig("config.json" , &cfg) 
+// TODO: put a valid directory here
+err := config.ReadConfig("./" , &cfg) 
 if err > 0 {  
   os.Exit(err)
   }  

@@ -11,7 +11,7 @@ type Configuration struct {
   City string
   Pub_key string
   Server string
-  Port int
+  Port string
   Home string
   SSHKEYFILE string  // from /
 }
@@ -19,7 +19,7 @@ type Configuration struct {
 func ReadConfig(home string, config *Configuration) int{
 file, err := os.Open(home + "config.json") 
 if err != nil {  
-  log.Fatal("[error] loading config.json")
+  log.Fatal("[error] loading config.json at " + home)
   return -2
   }  
 decoder := json.NewDecoder(file) 

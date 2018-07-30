@@ -1,11 +1,13 @@
 package main
 
 import (
+  "os"
   "fmt"
   "log"
   "net/http"
   "github.com/gorilla/mux"
   "time"
+  "github.com/niclabs/testResolvers/config"
 )
 
 // ROUTER
@@ -64,8 +66,15 @@ func postresult(w http.ResponseWriter, r *http.Request) {
 
 // MAIN
 func main() {
-    router := NewRouter()
-    log.Fatal(http.ListenAndServe(":80", router))
+var cfg config.Configuration
+
+err := config.ReadConfig("./" , &cfg) 
+if err > 0 {  
+  os.Exit(err)
+  }  
+
+router := NewRouter()
+log.Fatal(http.ListenAndServe(":" + cfg.Port, router))
 }
 
 
