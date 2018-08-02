@@ -63,6 +63,6 @@ for _,ip := range iplist {
   ips <- ip
   }
 for r :=  range res {
-  
+  log.Fatal(r)
   }
 }
