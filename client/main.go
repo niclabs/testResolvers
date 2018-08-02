@@ -3,47 +3,66 @@ package main
 import (
     "github.com/niclabs/testResolvers/resolvertests"
     "github.com/niclabs/testResolvers/config"
-    "bufio"
-    "encoding/csv"
+    "encoding/json"
+    "net/http"
     "runtime"
-    "io"
+    "time"
     "log"
+    "io/ioutil"
     "os"
 )
 
 func main() {
 var cfg config.Configuration
-
-if len(os.Args) < 2 {
-  log.Fatal("[error] use: " + os.Args[0] + " csv_filename");
-  os.Exit(-1)
-  }
+var iplist []string
 
 // TODO: put a valid directory here
-err := config.ReadConfig("./" , &cfg) 
-if err > 0 {  
-  os.Exit(err)
+errno := config.ReadConfig("./" , &cfg) 
+if errno > 0 {  
+  log.Fatal("Error reading config file")
+  os.Exit(errno)
   }  
 
 ips := make (chan string, 20000)
 res := make (chan resolvertests.Response, 20000)
 
-for w:= 1; w <= runtime.NumCPU() * 2; w++ {
+for w:= 1; w <= runtime.NumCPU(); w++ {
   go resolvertests.CheckDNS(w, ips, res)
   }
 
-csvFile, _ := os.Open(os.Args[1])
-reader := csv.NewReader(bufio.NewReader(csvFile))
-for {
-  line, error := reader.Read()
-  if error == io.EOF {
-    break
-    } else if error != nil {
-    log.Fatal(error)
-    }
-  ips <- line[0]
+// http request 
+
+cli := http.Client{
+  Timeout: time.Second * 10, // Maximum of 2 secs
+}
+
+url := "http://" + cfg.Server + ":" + cfg.Port + "/get"
+
+req, err := http.NewRequest(http.MethodGet, url , nil)
+if err != nil {
+  log.Fatal("Error with request")
+  os.Exit(-2)
+  }
+// TODO:  add auth on headers
+req.Header.Set("User-Agent", "testresolver client")
+httpResp, err := cli.Do(req)
+  if err != nil {
+    log.Fatal("Error performing http get")
+    os.Exit(-3)
+}
+
+// process data
+data, _ := ioutil.ReadAll(httpResp.Body)
+err = json.Unmarshal([]byte(data), &iplist)
+if err != nil {
+  log.Fatal("Error Unmarshaling IP list")
+  os.Exit(-3)
+  }
+
+for _,ip := range iplist {
+  ips <- ip
   }
 for r :=  range res {
-  log.Println(r)
+  
   }
 }

@@ -11,14 +11,14 @@ import (
 )
 
 type Response struct {
-ip string
-isAlive int
-hasRecursion int
-hasDNSSEC int
-hasDNSSECfail int
-qidRatio int
-portRatio int
-txt string
+Ip string
+IsAlive int
+HasRecursion int
+HasDNSSEC int
+HasDNSSECfail int
+QidRatio int
+PortRatio int
+Txt string
 }
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -75,7 +75,6 @@ for i:= 0; i < 10; i++ {
     ids = append(ids,msg.MsgHdr.Id)
     }
   }
-fmt.Println(ids)
 return testRandomness(ids),0
 }
 
@@ -129,12 +128,12 @@ return  msg.MsgHdr.Rcode
 }
 
 func CheckDNS(id int, ips <- chan string, results chan <- Response) {
-line := "www.hola.com"
+line := "www.google.com"
 for ip :=  range ips {
   ip := strings.TrimSpace(ip)
   c := new(dns.Client)
   m := new(dns.Msg)
-  r := Response{ip : ip, isAlive : 1}
+  r := Response{Ip : ip, IsAlive : 1}
 
   m.SetQuestion(dns.Fqdn(line), dns.TypeA)
   m.RecursionDesired = true
@@ -142,15 +141,15 @@ for ip :=  range ips {
   msg ,_ ,err := c.Exchange(m, ip + ":53")
 
   if err != nil {
-    r.isAlive = 0;
+    r.IsAlive = 0;
   } else {
     if msg != nil {
       if msg.Rcode != dns.RcodeRefused && msg.RecursionAvailable  {
-        r.hasRecursion = 1
-        r.hasDNSSEC = checkDNSSECok(ip);
-        r.hasDNSSECfail = checkDNSSECnook(ip);
-        r.txt = checkAuthority(ip);
-        r.qidRatio,_ = checkRandomness(ip);
+        r.HasRecursion = 1
+        r.HasDNSSEC = checkDNSSECok(ip);
+        r.HasDNSSECfail = checkDNSSECnook(ip);
+        r.Txt = checkAuthority(ip);
+//        r.qidRatio,_ = checkRandomness(ip);
         }
       }
     }
