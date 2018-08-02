@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
   "os"
@@ -7,8 +7,10 @@ import (
   "github.com/niclabs/testResolvers/config"
 )
 
-func main() {
+var IPlist []string
 var cfg config.Configuration
+
+func main() {
 
 err := config.ReadConfig("./" , &cfg) 
 if err > 0 {  
@@ -16,8 +18,14 @@ if err > 0 {
   os.Exit(err)
   }  
 
+IPlist, err = ReadData()
+if err > 0 {
+  log.Fatal("Read Data")
+  os.Exit(err)
+  }
+
 router := NewRouter()
-log.Fatal(http.ListenAndServe(":8080", router))
+log.Fatal(http.ListenAndServe(":"+cfg.Port, router))
 }
 
 

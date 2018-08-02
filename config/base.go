@@ -14,6 +14,7 @@ type Configuration struct {
   Port string
   Home string
   SSHKEYFILE string  // from /
+  CSVfile string
 }
 
 func ReadConfig(home string, config *Configuration) int{

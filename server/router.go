@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
     "net/http"
@@ -17,6 +17,7 @@ type Route struct {
 
 var routes = [...] Route {
   Route { "Index", "GET", "/", index},
+  Route { "GetFile", "GET", "/get", getfile},
   Route { "GetFile", "GET", "/get/{id}", getfile},
   Route { "PostResults", "POST", "/post", postresult},
   }
