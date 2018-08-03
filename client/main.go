@@ -3,66 +3,80 @@ package main
 import (
     "github.com/niclabs/testResolvers/resolvertests"
     "github.com/niclabs/testResolvers/config"
-    "encoding/json"
-    "net/http"
     "runtime"
     "time"
     "log"
-    "io/ioutil"
-    "os"
+    "bytes"
+    "encoding/json"
 )
 
-func main() {
-var cfg config.Configuration
-var iplist []string
+func run (cfg config.Configuration, c Communication) {
 
-// TODO: put a valid directory here
-errno := config.ReadConfig("./" , &cfg) 
-if errno > 0 {  
-  log.Fatal("Error reading config file")
-  os.Exit(errno)
-  }  
+// Get INFO
 
-ips := make (chan string, 20000)
-res := make (chan resolvertests.Response, 20000)
+iplist, err := c.Get(cfg)
+if err != nil {
+  log.Fatal(err)
+  }
+
+// Parallel process
+
+ips := make (chan string)
+res := make (chan resolvertests.Response)
 
 for w:= 1; w <= runtime.NumCPU(); w++ {
   go resolvertests.CheckDNS(w, ips, res)
   }
 
-// http request 
-
-cli := http.Client{
-  Timeout: time.Second * 10, // Maximum of 2 secs
-}
-
-url := "http://" + cfg.Server + ":" + cfg.Port + "/get"
-
-req, err := http.NewRequest(http.MethodGet, url , nil)
-if err != nil {
-  log.Fatal("Error with request")
-  os.Exit(-2)
-  }
-// TODO:  add auth on headers
-req.Header.Set("User-Agent", "testresolver client")
-httpResp, err := cli.Do(req)
-  if err != nil {
-    log.Fatal("Error performing http get")
-    os.Exit(-3)
-}
-
-// process data
-data, _ := ioutil.ReadAll(httpResp.Body)
-err = json.Unmarshal([]byte(data), &iplist)
-if err != nil {
-  log.Fatal("Error Unmarshaling IP list")
-  os.Exit(-3)
-  }
-
+// send ips to workers
 for _,ip := range iplist {
   ips <- ip
   }
-for r :=  range res {
-  log.Fatal(r)
+
+// receive test results
+
+m := struct {
+  time int64 
+  login string
+  location string
+  res [] resolvertests.Response
+  } {
+  time.Now().Unix(),
+  cfg.Login,
+  cfg.Location,
+  make ([]resolvertests.Response,0),
   }
+
+log.Println(iplist)
+
+for r:=0 ; r < len(iplist) ; r++ {
+  m.res = append(m.res,<-res)
+  }
+
+close(ips)
+close(res)
+
+b := new(bytes.Buffer)
+log.Println(b)
+
+json.NewEncoder(b).Encode(m)
+
+err = c.Post (cfg, b)
+if err != nil {
+  log.Fatal("Error Posting IP list ")
+  }
+}
+
+func main() {
+var cfg config.Configuration
+var c Communication = REST {}
+
+// TODO: put a valid directory here
+errno := config.ReadConfig("./" , &cfg) 
+if errno > 0 {  
+  log.Fatal("Error reading config file")
+  }  
+
+run(cfg,c)
+
 }

@@ -4,6 +4,7 @@ import (
   "os"
   "log"
   "net/http"
+  "time"
   "github.com/niclabs/testResolvers/config"
 )
 
@@ -25,7 +26,15 @@ if err > 0 {
   }
 
 router := NewRouter()
-log.Fatal(http.ListenAndServe(":"+cfg.Port, router))
+
+s := &http.Server{
+	Addr:           ":" + cfg.Port,
+        Handler:        router,
+	ReadTimeout:    10 * time.Second,
+	WriteTimeout:   10 * time.Second,
+	MaxHeaderBytes: 1 << 20,
+}
+log.Fatal(s.ListenAndServe())
 }
 
 

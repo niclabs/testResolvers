@@ -7,8 +7,8 @@ import (
 )
 
 type Configuration struct {
-  User string
-  City string
+  Login string
+  Location string
   Pub_key string
   Server string
   Port string
