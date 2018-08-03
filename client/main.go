@@ -4,10 +4,7 @@ import (
     "github.com/niclabs/testResolvers/resolvertests"
     "github.com/niclabs/testResolvers/config"
     "runtime"
-    "time"
     "log"
-    "bytes"
-    "encoding/json"
 )
 
 func run (cfg config.Configuration, c Communication) {
@@ -16,7 +13,7 @@ func run (cfg config.Configuration, c Communication) {
 
 iplist, err := c.Get(cfg)
 if err != nil {
-  log.Fatal(err)
+  log.Fatal(err.Error())
   }
 
 // Parallel process
@@ -35,35 +32,19 @@ for _,ip := range iplist {
 
 // receive test results
 
-m := struct {
-  time int64 
-  login string
-  location string
-  res [] resolvertests.Response
-  } {
-  time.Now().Unix(),
-  cfg.Login,
-  cfg.Location,
-  make ([]resolvertests.Response,0),
-  }
-
-log.Println(iplist)
-
+var reslice []resolvertests.Response
 for r:=0 ; r < len(iplist) ; r++ {
-  m.res = append(m.res,<-res)
+  reslice = append(reslice,<-res)
   }
 
 close(ips)
 close(res)
 
-b := new(bytes.Buffer)
-log.Println(b)
+// publish them
 
-json.NewEncoder(b).Encode(m)
-
-err = c.Post (cfg, b)
+err = c.Post (cfg, reslice)
 if err != nil {
-  log.Fatal("Error Posting IP list ")
+  log.Fatal("Error POST call " + err.Error())
   }
 }
 
