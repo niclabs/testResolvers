@@ -28,7 +28,7 @@ if err > 0 {
 router := NewRouter()
 
 s := &http.Server{
-	Addr:           ":" + cfg.Port,
+	Addr:           cfg.Server + ":" + cfg.Port,
         Handler:        router,
 	ReadTimeout:    10 * time.Second,
 	WriteTimeout:   10 * time.Second,

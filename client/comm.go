@@ -24,12 +24,12 @@ type REST struct {
 
 func (r REST) Get (cfg config.Configuration) ([]string,error) {
   var iplist []string
+  r.url = "http://" + cfg.Server + ":" + cfg.Port 
 
-  r.url = "http://" + cfg.Server + ":" + cfg.Port  
   tr := &http.Transport{
 	MaxIdleConns:       10,
 	IdleConnTimeout:    30 * time.Second,
-	DisableCompression: true,
+	DisableCompression: false,
   }
   cli := http.Client{
     Timeout: time.Second * 10, // Maximum of 2 secs
@@ -58,7 +58,8 @@ func (r REST) Get (cfg config.Configuration) ([]string,error) {
   }
 
 func (r REST) Post(cfg config.Configuration,reslice []resolvertests.Response) error {
-  r.url = "http://" + cfg.Server + ":" + cfg.Port  
+  r.url ="http://" + cfg.Server + ":" + cfg.Port
+
   type message struct {
     Time int64 `json:"Time"`
     Login string `json:"Login"`

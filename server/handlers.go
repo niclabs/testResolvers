@@ -29,7 +29,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 func getfile(w http.ResponseWriter, r *http.Request) {
   w.Header().Set("Content-Type", "application/json; charset=UTF-8")
   w.WriteHeader(http.StatusOK)
-  if err := json.NewEncoder(w).Encode(IPlist); err != nil {
+  err := json.NewEncoder(w).Encode(IPlist)
+  if err != nil {
     log.Fatal("Encoding ip list to json")
     }
   }
