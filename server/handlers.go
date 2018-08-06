@@ -3,10 +3,9 @@ package main
 import (
     "fmt"
     "encoding/json"
+    "compress/gzip"
     "net/http"
     "log"
-    "io"
-    "io/ioutil"
 
     "github.com/niclabs/testResolvers/resolvertests"
 )
@@ -16,10 +15,32 @@ type Query struct {
   }
 
 type Reply struct {
-  time int64
-  login string
-  location string
-  res [] resolvertests.Response
+  Time int64
+  Login string
+  Location string
+  Res [] resolvertests.Response
+  }
+
+func getData(r *http.Request) (*Reply,error) {
+  var data Reply
+  var decoder *json.Decoder
+  switch r.Header.Get("Content-Encoding") {
+    case "gzip":
+      gz, err := gzip.NewReader(r.Body)
+      if err != nil {
+        return nil, err
+        }
+      defer gz.Close()
+      decoder = json.NewDecoder(gz)
+    default:
+      decoder = json.NewDecoder(r.Body)
+    }
+  err := decoder.Decode(&data)
+  if err != nil {
+    log.Fatal(err.Error())
+    return nil, err
+    }
+  return &data, err
   }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -36,21 +57,10 @@ func getfile(w http.ResponseWriter, r *http.Request) {
   }
 
 func postresult(w http.ResponseWriter, r *http.Request) {
-  var reply Reply
 
-  body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
-  defer r.Body.Close()
+  reply, err := getData(r)
   if err != nil {
-    http.Error(w, err.Error(), 500)
-    return
-    }
-
-  log.Println(string(body))
-
-  /* if we have an unmarshal error we send
-  the error code to the client */
-
-  if err := json.Unmarshal(body, &reply); err != nil {
+    log.Fatal(err.Error())
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     w.WriteHeader(422) // unprocessable entity
     if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -61,5 +71,7 @@ func postresult(w http.ResponseWriter, r *http.Request) {
 
   w.Header().Set("Content-Type", "application/json; charset=UTF-8")
   w.WriteHeader(http.StatusCreated)
+
+  log.Println(*reply)
   }
 

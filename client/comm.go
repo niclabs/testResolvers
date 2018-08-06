@@ -97,6 +97,7 @@ func (r REST) Post(cfg config.Configuration,reslice []resolvertests.Response) er
 
   req.Header.Set("User-Agent", "testresolver client")
   req.Header.Set("Content-Type", "application/json")
+  req.Header.Set("Content-Encoding", "gzip")
 
   resp, err := cli.Do(req)
   if err != nil {
