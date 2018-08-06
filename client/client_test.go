@@ -35,7 +35,7 @@ func TestClientNoEncryption(t *testing.T) {
   u,err := url.Parse(server.URL)
   cfg.Server, cfg.Port, _ = net.SplitHostPort(u.Host)
 
-  var client REST = REST {}
+  var client Communication = REST {}
   list, err  := client.Get(cfg)
 
   if err != nil {
