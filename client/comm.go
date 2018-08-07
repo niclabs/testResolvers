@@ -2,6 +2,7 @@ package main
 
 import (
     "encoding/json"
+    "compress/gzip"
     "net/http"
     "time"
     "io/ioutil"
@@ -75,9 +76,18 @@ func (r REST) Post(cfg config.Configuration,reslice []resolvertests.Response) er
 
   b, err := json.Marshal(m)
   if err != nil {
-    log.Fatal("Error Marshaling Response " + err.Error())
+    log.Fatal("Error Marshaling Message " + err.Error())
     return err
     }
+
+  var buf bytes.Buffer
+  gzipped := gzip.NewWriter(&buf)
+  _ , err = gzipped.Write(b)
+  if err != nil {
+    log.Fatal("Error Gzipping Message " + err.Error())
+    return err
+    }
+  gzipped.Close()
 
   tr := &http.Transport{
         MaxIdleConns:       10,
@@ -89,7 +99,7 @@ func (r REST) Post(cfg config.Configuration,reslice []resolvertests.Response) er
     Transport: tr,
     }
 
-  req, err := http.NewRequest("POST", r.url + "/post" , bytes.NewBuffer(b))
+  req, err := http.NewRequest("POST", r.url + "/post" , &buf)
   if err != nil {
     log.Fatal("Error POST request " + err.Error())
     return err
