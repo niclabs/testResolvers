@@ -7,8 +7,9 @@ import (
   "net/url"
   "testing"
   "encoding/json"
-
+  "fmt"
   "github.com/niclabs/testResolvers/config"
+  "net/http/httputil"
 )
 
 func TestClientNoEncryption(t *testing.T) {
@@ -22,6 +23,14 @@ func TestClientNoEncryption(t *testing.T) {
       if err != nil {
         t.Errorf("Error marshaling list")
       }
+    //Dumps ingoing request. Debugs client request.
+    dump, err := httputil.DumpRequest(req, true)
+		if err != nil {
+			http.Error(rw, fmt.Sprint(err), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprintf(rw, "%q", dump)
     }
   }
   // local http server 
