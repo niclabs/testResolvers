@@ -9,12 +9,15 @@ import (
 	"encoding/json"
 	"github.com/niclabs/testResolvers/config"
 	"net/http/httputil"
+	"bytes"
 )
 
-func testMatchingRequest(reqServer *http.Request, reqClient *http.Request, body bool){
+//Compares request sent by client to request received by server.
+func testMatchingRequest(t *testing.T, reqServer *http.Request, reqClient *http.Request, body bool){
 	dumpServer, _:= httputil.DumpRequest(reqServer, body)
-	dumpClient, _:= httputil.DumpRequestOut(reqClient, body)
-	if(dumpServer!=dumpClient){ //find another way to make comparison, not valid.
+	dumpClient, _:= httputil.DumpRequestOut(reqClient, body)//both dumps are byte arrays
+	e:=bytes.Equal(dumpServer, dumpClient)
+	if(e==false){ 
 		t.Errorf("Request sent is different than request received")
 	}
 }
@@ -28,7 +31,6 @@ func TestClientNoEncryption(t *testing.T){
 			if err != nil {
 				t.Errorf("Error marshaling list")
 			}
-			//var reqS *http.Request = req 
     		}
   	}
 	// local http server 
