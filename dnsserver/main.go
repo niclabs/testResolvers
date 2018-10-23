@@ -58,8 +58,7 @@ func nxDomain(msg *dns.Msg, domain string, address string) {
       Ttl: 0,
     },
   })
-  log.Printf("domain: %s Qtype: %d from: %s\n", domain,msg.Question[0].Qtype, ad
-dress)
+  log.Printf("domain: %s Qtype: %d from: %s\n", domain,msg.Question[0].Qtype, address)
 }
 
 func getidport(port string,msg dns.Msg) qidport {
